@@ -39,7 +39,8 @@ calculateCostGINI <- function(x){
     
   }
   
-  output <- data.frame(cost.value = min(cost.vector),
-                       split.value = unique(x$Predictor)[which.min(cost.vector)])
+  output <- data.frame("split.value" = unique(x$Predictor)[which.min(cost.vector)],
+                       "cost.value" = min(cost.vector),
+                       "cost.change" = cost.before[[1]] - cost.value)
   
 }  
