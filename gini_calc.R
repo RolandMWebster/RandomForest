@@ -1,5 +1,7 @@
 calculateCostGINI <- function(x){
   
+  kObs <- nrow(x)
+  
   cost.before <- 1 - x %>% 
     group_by(Response) %>%
     summarise(gini = (n() / nrow(x))^2) %>%
@@ -41,6 +43,6 @@ calculateCostGINI <- function(x){
   
   output <- data.frame("split.value" = unique(x$Predictor)[which.min(cost.vector)],
                        "cost.value" = min(cost.vector),
-                       "cost.change" = cost.before[[1]] - cost.value)
+                       "cost.change" = cost.before[[1]] - min(cost.vector))
   
 }  
