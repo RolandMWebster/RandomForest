@@ -171,10 +171,10 @@ output <- c(output,
 
 }
 
-test <- trainRandomForest(data = subdata,
-                          response = "Species",
-                          predictors = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
-                          requiredCostReduction = 0.03,
-                          samplePredictorCount = 2)
-str(test)
+model <- trainRandomForest(data = subdata,
+                           response = "Species",
+                           predictors = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
+                           requiredCostReduction = 0.03,
+                           samplePredictorCount = 2)
+str(model)
 
