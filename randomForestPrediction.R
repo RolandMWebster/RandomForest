@@ -1,7 +1,7 @@
 
 # Prediction Function -----------------------------------------------------
 
-randomForestPrediction <- function(x, y){
+predictRandomForest <- function(x, y){
   
   
   # Parameters:
@@ -37,14 +37,14 @@ randomForestPrediction <- function(x, y){
     split.value <- y$split.value
     
     # We determine our dataset to go to:
-    if(x[,split.predcitor][[1]] <= split.value){
+    if(x[,split.predictor][[1]] <= split.value){
       y <- y$data.1
     }else{
       y <- y$data.2
     }
     
     # Once we've reassigned y to be our chosen subdata set, we can recursively call our function
-    x <- randomForestPrediction(x,y)
+    predictRandomForest(x,y)
     
   }
   
@@ -57,5 +57,7 @@ randomForestPrediction <- function(x, y){
 
 sample <- subdata[sample(nrow(subdata))[1],]
 
-output_test <- randomForestPrediction(sample, model)
+output_test <- predictRandomForest(sample, model)
 output_test
+
+sample

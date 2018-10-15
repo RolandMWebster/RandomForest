@@ -16,8 +16,12 @@
 # Recursively Call Splitting Process - DONE
 # Add sampling of predictors - DONE
 
-# Determine outputs for split / no split result - IN PROGRESS
-  # Need to name all list elements to make this much easier to read
+# Determine outputs for split / no split result - DONE
+
+# TRANSFORM INTO RANDOM FOREST BY CREAATING N NUMBER OF DECISION TREES
+# ALLOW FOR RESPONSE VARIABLES WITH N > 2 LEVELS
+# ALLOW FOR CHARACTER PREDICTORS
+# ADD PARAMETER FOR MULTIPLE DIFFERENT COST FUNCTIONS
 
 ####################################################
 
@@ -36,22 +40,11 @@ subdata <- iris %>%
   droplevels()
 
 
-# Variables I -------------------------------------------------------------
-
-# This is input by the user when calling the decision tree function
-predictors <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
-predictors <- c("Sepal.Length", "Sepal.Width", "Petal.Length")
-
-response <- "Species"
-requiredCostReduction <- 0.1
-samplePredictorCount <- 2
-
-
 
 
 # Start Function ----------------------------------------------------------
 
-trainRandomForest <- function(data,
+trainDecisionTree <- function(data,
                               response,
                               predictors,
                               requiredCostReduction,
@@ -59,7 +52,8 @@ trainRandomForest <- function(data,
 ){
   
 
-  
+
+# Loop Through Decision Trees ---------------------------------------------
 
 # Sampling Predictors -----------------------------------------------------
 
@@ -107,19 +101,17 @@ data <- data[,c(response, sample.predictors)]
   
 split.table
 
-
-# Get required information for split
+# OLD
 # split.predictor <- as.character(split.table$name[which.min(split.table$cost.value)])
 # split.value <- split.table$split.value[which.min(split.table$cost.value)]
 # cost.value <- split.table$cost.value[which.min(split.table$cost.value)]
 # cost.change <- split.table$cost.change[which.min(split.table$cost.value)]
 
-# CORRECTED TO ASSIGN BY MAXIMUM COST REDUCTION NOT MINIMUM COST VALUE
+# Get required information for split
 split.predictor <- as.character(split.table$name[which.max(split.table$cost.change)])
 split.value <- split.table$split.value[which.max(split.table$cost.change)]
 cost.value <- split.table$cost.value[which.max(split.table$cost.change)]
 cost.change <- split.table$cost.change[which.max(split.table$cost.change)]
-
 
 # Split Data if the cost change is great enough
 if(cost.change >= requiredCostReduction){
@@ -130,7 +122,7 @@ output <- list("data.1" = data.1,
 
 # Recursively call the function
 output <- lapply(output,
-                 trainRandomForest,
+                 trainDecisionTree,
                  response = response,
                  predictors = sample.predictors,
                  requiredCostReduction = requiredCostReduction)
@@ -171,10 +163,56 @@ output <- c(output,
 
 }
 
+
+# TEST ======================================================================
+model <- trainDecisionTree(data = subdata,
+                           response = "Species",
+                           predictors = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
+                           requiredCostReduction = 0.01,
+                           samplePredictorCount = 2)
+str(model)
+# ===========================================================================
+
+
+
+# Random Forest Model -----------------------------------------------------
+
+trainRandomForest <- function(data,
+                              response,
+                              predictors,
+                              requiredCostReduction,
+                              samplePredictorCount,
+                              treeCount){
+  
+  # Initialize list of n trees
+  output <- vector("list", length = treeCount)
+  
+  # Name each element for readibility
+  names(output) <- c(1:treeCount)
+  
+  # Use lapply with our trainDecisionTree() function to train n trees
+  
+  #### THIS ISN'T WORKING BECAUSE trainDecisionTree() IS USING output AS THE X PARAMETER
+  #### MIGHT NEED A FOR LOOP FOR THIS
+  output <- lapply(output,
+                   trainDecisionTree,
+                   data = data,
+                   response = response,
+                   predictors = predictors,
+                   requiredCostReduction = requiredCostReduction,
+                   samplePredictorCount = samplePredictorCount)
+  
+}
+
+
+
+  
+# TEST ======================================================================
 model <- trainRandomForest(data = subdata,
                            response = "Species",
                            predictors = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
-                           requiredCostReduction = 0.03,
-                           samplePredictorCount = 2)
+                           requiredCostReduction = 0.01,
+                           samplePredictorCount = 2,
+                           treeCount = 2)
 str(model)
-
+# ===========================================================================
