@@ -6,13 +6,18 @@
 # 1. Use our Gini calc function to determine how to split the data.
 # 2. Check if the cost reduction is great enough to warrant a split.
 # 3. Return a list with either:
+
 #   a. The original data set if the cost reduction is too low to warrant a split.
 #   b. The two split datasets if the cost reduction is large enough to warrant a split.
 
 #################### TO DO #########################
 
-# Consider how to create a more dynamic framework.
-# This will need to be looped until no more splits occur.
+# Build splitting logic - DONE
+# Recursively Call Splitting Process - DONE
+# Add sampling of predictors - DONE
+
+# Determine outputs for split / no split result - IN PROGRESS
+  # Need to name all list elements to make this much easier to read
 
 ####################################################
 
@@ -26,7 +31,7 @@ library(ggplot2)
 # 1. Splitting Calc -------------------------------------------------------
 
 subdata <- iris %>% 
-  filter(Species %in% c("setosa", "virginica")) %>%
+  filter(Species %in% c("versicolor", "virginica")) %>%
   mutate(Species = as.character(Species)) %>%
   droplevels()
 
@@ -34,21 +39,35 @@ subdata <- iris %>%
 # Variables I -------------------------------------------------------------
 
 # This is input by the user when calling the decision tree function
-input.predictors <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
-kResponse <- "Species"
-kRequiredCostReduction <- 0.4
+predictors <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+predictors <- c("Sepal.Length", "Sepal.Width", "Petal.Length")
+
+response <- "Species"
+requiredCostReduction <- 0.1
+samplePredictorCount <- 2
 
 
 
 
 # Start Function ----------------------------------------------------------
 
-splitData <- function(data,
-                      response,
-                      predictors,
-                      requiredCostReduction
+trainRandomForest <- function(data,
+                              response,
+                              predictors,
+                              requiredCostReduction,
+                              samplePredictorCount
 ){
   
+
+  
+
+# Sampling Predictors -----------------------------------------------------
+
+# Filter our data down to our chosen predictor columns
+
+(sample.predictors <- sample(predictors, samplePredictorCount))
+    
+data <- data[,c(response, sample.predictors)]  
 
   
   
@@ -62,10 +81,10 @@ splitData <- function(data,
   
   # Prep Split Table --------------------------------------------------------
   
-  split.table <- data.frame(name = predictors,
-                            split.value = rep(0, length(predictors)),
-                            cost.value = rep(0, length(predictors)),
-                            cost.change = rep(0, length(predictors)))
+  split.table <- data.frame(name = sample.predictors,
+                            split.value = rep(0, length(sample.predictors)),
+                            cost.value = rep(0, length(sample.predictors)),
+                            cost.change = rep(0, length(sample.predictors)))
   
   
   # Begin Loop Through Predictors -------------------------------------------
@@ -88,30 +107,57 @@ splitData <- function(data,
   
 split.table
 
+
 # Get required information for split
-split.predictor <- as.character(split.table$name[which.min(split.table$cost.value)])
-split.value <- split.table$split.value[which.min(split.table$cost.value)]
-cost.value <- split.table$cost.value[which.min(split.table$cost.value)]
-cost.change <- split.table$cost.change[which.min(split.table$cost.value)]
+# split.predictor <- as.character(split.table$name[which.min(split.table$cost.value)])
+# split.value <- split.table$split.value[which.min(split.table$cost.value)]
+# cost.value <- split.table$cost.value[which.min(split.table$cost.value)]
+# cost.change <- split.table$cost.change[which.min(split.table$cost.value)]
+
+# CORRECTED TO ASSIGN BY MAXIMUM COST REDUCTION NOT MINIMUM COST VALUE
+split.predictor <- as.character(split.table$name[which.max(split.table$cost.change)])
+split.value <- split.table$split.value[which.max(split.table$cost.change)]
+cost.value <- split.table$cost.value[which.max(split.table$cost.change)]
+cost.change <- split.table$cost.change[which.max(split.table$cost.change)]
+
 
 # Split Data if the cost change is great enough
 if(cost.change >= requiredCostReduction){
-data.1 <- subdata %>% filter_at(vars(split.predictor), any_vars(. <= split.value))
-data.2 <- subdata %>% filter_at(vars(split.predictor), any_vars(. > split.value))
-output <- list(data.1,
-              data.2)
+data.1 <- data %>% filter_at(vars(split.predictor), any_vars(. <= split.value))
+data.2 <- data %>% filter_at(vars(split.predictor), any_vars(. > split.value))
+output <- list("data.1" = data.1,
+               "data.2" = data.2)
 
-
+# Recursively call the function
 output <- lapply(output,
-                 splitData,
+                 trainRandomForest,
                  response = response,
-                 predictors = predictors,
+                 predictors = sample.predictors,
                  requiredCostReduction = requiredCostReduction)
 
 
+# Bolt on the needed split information
+output <- c(output,
+            "split.predictor" = split.predictor,
+            "split.value" = split.value)
 
+
+
+# Determine our output when the cost reduction drops below our threshold
+# We need to return the predicted response value at this step:
 }else{
-  output <- data
+  
+  # Tabulate frequency of response variables (the maximum freq will be our prediction)
+  result.table <- as.data.frame(table(data[,response]))
+  
+  # Store our output as the response choice
+  output <- list("prediction" = as.character(result.table$Var1[result.table$Freq == max(result.table$Freq)]),
+                 "proability" = max(result.table$Freq) / sum(result.table$Freq))
+  
+  
+  # output <- data
+  
+  
 }
 
 
@@ -121,11 +167,14 @@ output <- lapply(output,
 
 
 
+
+
 }
 
-test <- splitData(data = subdata,
-                  response = "Species",
-                  predictors = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
-                  requiredCostReduction = 0.4)
-
+test <- trainRandomForest(data = subdata,
+                          response = "Species",
+                          predictors = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
+                          requiredCostReduction = 0.03,
+                          samplePredictorCount = 2)
+str(test)
 
