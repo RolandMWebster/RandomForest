@@ -185,6 +185,9 @@ trainRandomForest <- function(data,
                               samplePredictorCount,
                               treeCount){
   
+  # Set progress bar
+  pb <- txtProgressBar(min = 0, max = treeCount, style = 3)
+  
   # Initialize list of n trees
   output <- vector("list", length = treeCount)
   
@@ -206,6 +209,9 @@ trainRandomForest <- function(data,
   # FOR LOOP SOLUTION (EUGH)
   for(i in 1:treeCount){
     
+    # Update progress bar
+    setTxtProgressBar(pb, i)
+    
     # Train n decision trees
     output[[i]] <- trainDecisionTree(data = data,
                                      response = response,
@@ -213,6 +219,9 @@ trainRandomForest <- function(data,
                                      requiredCostReduction = requiredCostReduction,
                                      samplePredictorCount = samplePredictorCount)
   }
+  
+  # Close progress bar
+  close(pb)
   
   # Return list of decision trees
   output
