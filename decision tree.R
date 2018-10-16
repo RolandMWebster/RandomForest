@@ -194,13 +194,27 @@ trainRandomForest <- function(data,
   
   #### THIS ISN'T WORKING BECAUSE trainDecisionTree() IS USING output AS THE X PARAMETER
   #### MIGHT NEED A FOR LOOP FOR THIS
-  output <- lapply(output,
-                   trainDecisionTree,
-                   data = data,
-                   response = response,
-                   predictors = predictors,
-                   requiredCostReduction = requiredCostReduction,
-                   samplePredictorCount = samplePredictorCount)
+  # output <- lapply(output,
+  #                  trainDecisionTree,
+  #                  data = data,
+  #                  response = response,
+  #                  predictors = predictors,
+  #                  requiredCostReduction = requiredCostReduction,
+  #                  samplePredictorCount = samplePredictorCount)
+  
+  # FOR LOOP SOLUTION (EUGH)
+  for(i in 1:treeCount){
+    
+    # Train n decision trees
+    output[[i]] <- trainDecisionTree(data = data,
+                                     response = response,
+                                     predictors = predictors,
+                                     requiredCostReduction = requiredCostReduction,
+                                     samplePredictorCount = samplePredictorCount)
+  }
+  
+  # Return list of decision trees
+  output
   
 }
 
