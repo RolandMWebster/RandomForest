@@ -3,22 +3,18 @@
 
 predictDecisionTree <- function(data, model){
   
-  
-  # Parameters:
-  # x is the test data
-  # y is the model
 
   # We're looking for an output of the form:
-    # PREDICTION = P_1
-    # PROBABILITY = P_2
+  # PREDICTION = X
+  # PROBABILITY = Y
   
+  # We'll call the function recursively so we can keep y for all layers.
   
-  # We'll call the function recursively so we can keep y for all layers
-    # If a split didn't occur, then we assign the output value:
+  # If a split didn't occur in the model, then we assign the output value:
   if(is.null(model$split.predictor)){
     
     prediction <- model
-      
+    
   }else{
     
     # If the cost reduction is large enough that we split the data then we need to determine which data set to go to by using our input value
@@ -38,9 +34,9 @@ predictDecisionTree <- function(data, model){
     
   }
   
-
-}
   
+}
+
 
 
 
@@ -65,14 +61,35 @@ predictRandomForest <- function(data, model){
   
   
   
-
-# Determine Length of Model -----------------------------------------------
-
+  # Initialize List of Predictions ------------------------------------------
   
+  predictions <- vector("list", length = length(model))
   
+  # Loop through each tree in the random forest
+  for(i in 1:length(model)){
+    
+    # Declare the current tree
+    tree <- model[[i]]
+    
+    current.prediction <- predictDecisionTree(data,tree)
+    
+    # Update the current prediction using the predictDecisionTree() function
+    predictions[[i]] <- data.frame("Prediction" = current.prediction$prediction,
+                                   "Probability" = current.prediction$probability)
+    
+ 
+    
+    
+  }
   
+  predictions <- ldply(predictions)
   
 }
+
+
+
+output <- predictRandomForest(sample, model)
+
 
 
 
