@@ -28,6 +28,7 @@
 # Packages ----------------------------------------------------------------
 
 library(tidyr)
+library(plyr)
 library(dplyr)
 library(ggplot2)
 
@@ -144,7 +145,7 @@ output <- c(output,
   
   # Store our output as the response choice
   output <- list("prediction" = as.character(result.table$Var1[result.table$Freq == max(result.table$Freq)]),
-                 "proability" = max(result.table$Freq) / sum(result.table$Freq)) # <--- NEED TO RENAME THIS TO THE CORRECT NAME
+                 "probability" = max(result.table$Freq) / sum(result.table$Freq)) # <--- NEED TO RENAME THIS TO THE CORRECT NAME
     
   
   # output <- data
