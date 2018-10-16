@@ -3,7 +3,7 @@
 
 predictDecisionTree <- function(data, model){
   
-
+  
   # We're looking for an output of the form:
   # PREDICTION = X
   # PROBABILITY = Y
@@ -40,26 +40,10 @@ predictDecisionTree <- function(data, model){
 
 
 
-# Let's take a random sample row and test our function --------------------
-
-sample <- subdata[sample(nrow(subdata))[1],]
-
-output_test <- predictDecisionTree(sample, model)
-output_test
-
-sample
-
-
-
-
-
-
 # Now To Predict Random Forest --------------------------------------------
 
 
 predictRandomForest <- function(data, model){
-  
-  
   
   # Initialize List of Predictions ------------------------------------------
   
@@ -77,18 +61,32 @@ predictRandomForest <- function(data, model){
     predictions[[i]] <- data.frame("Prediction" = current.prediction$prediction,
                                    "Probability" = current.prediction$probability)
     
- 
+    
     
     
   }
   
-  predictions <- ldply(predictions)
+  # Convert our list of predicitons to a data.frame
+  predictions <- ldply(predictions) %>%
+    group_by(Prediction) %>%
+    summarise(Freq = n()) %>%
+    ungroup() %>%
+    arrange(desc(Freq))
   
+  # Tabulate to get a frequency count
+  # result <- as.data.frame(table(predictions$Prediction)) %>%
+  #   arrange(desc(Freq))
 }
 
 
 
+# Let's take a random sample row and test our function --------------------
+
+sample <- subdata[sample(nrow(subdata))[1],]
+
 output <- predictRandomForest(sample, model)
+
+output
 
 
 
