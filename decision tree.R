@@ -69,8 +69,7 @@ data <- data[,c(response, sample.predictors)]
   
   # Variables II ------------------------------------------------------------
   
- # kObs <- nrow(data) # Number of observations in the data set - this is calculated within the splitData function
-  kResponseVals <- unique(data[,response]) # All unique response values to classify
+ kResponseVals <- unique(data[,response]) # All unique response values to classify
   
   
   
@@ -152,10 +151,6 @@ output <- c(output,
   
   
 }
-
-
-
-
 
 
 
