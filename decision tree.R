@@ -60,7 +60,7 @@ trainDecisionTree <- function(data,
 
 # Filter our data down to our chosen predictor columns
 
-(sample.predictors <- sample(predictors, samplePredictorCount))
+sample.predictors <- sample(predictors, samplePredictorCount)
     
 data <- data[,c(response, sample.predictors)]  
 
