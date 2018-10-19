@@ -8,7 +8,8 @@
 
 # Prediction Function -----------------------------------------------------
 
-predictDecisionTree <- function(data, model){
+predictDecisionTree <- function(data,           # Our function takes the data to predict as a parameter
+                                model){         # ... and the model used to make the predictions
 
   # Our model is in a nested list structure.
   # We can loop through the model and strip away layers of the model at each step until we reach a prediciton.
@@ -51,7 +52,8 @@ predictDecisionTree <- function(data, model){
 # Now To Predict Random Forest --------------------------------------------
 
 
-predictRandomForest <- function(data, model){
+predictRandomForest <- function(data,             # Our function takes the same parameters as predictDecisionTree()
+                                model){
 
   # Initilialize an output data.frame
   
