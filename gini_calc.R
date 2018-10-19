@@ -46,3 +46,4 @@ calculateCostGINI <- function(x){
                        "cost.change" = cost.before[[1]] - min(cost.vector))
   
 }  
+
