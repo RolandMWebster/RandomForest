@@ -1,5 +1,12 @@
+# Outline -----------------------------------------------------------------
 
-# Prediction Function -----------------------------------------------------
+# Here we build a function used to predict response variables using our trained random forest model.
+# We utilize the predictDecisionTree() function that we built for predicting response variables from our decision tree model.
+# No changes are made to the predictDecisionTree() function.
+
+
+
+# Prediction Decision Tree Function ---------------------------------------
 
 predictDecisionTree <- function(data, model){
   
@@ -44,21 +51,22 @@ predictDecisionTree <- function(data, model){
 
 
 predictRandomForest <- function(data, model){
+
+  # Initilialize an output data.frame
   
-
-  # Loop Through Each Observation to be Predicted ---------------------------
-
+  # This should have length = number of observations to predict
   output <- data.frame("Prediction" = rep(0,nrow(data)),
                        "Freq" = rep(0,nrow(data)))
+  
+  
   
   # Loop through the observations in our data
   for(i in 1:nrow(data)){
     
+    # Declare our current observation
     observation <- data[i,]
     
-    
-    # Initialize List of Predictions ------------------------------------------
-    
+    # Initialize List of Predictions - we'll get a prediction for each tree in the forest
     predictions <- vector("list", length = length(model))
     
     # Loop through each tree in the random forest
@@ -67,16 +75,14 @@ predictRandomForest <- function(data, model){
       # Declare the current tree
       tree <- model[[j]]
       
+      # Determine the prediction for tree j by calling our predictDecisionTree() function
       current.prediction <- predictDecisionTree(observation,tree)
       
-      # Update the current prediction using the predictDecisionTree() function
+      # Update our prediction list with the current prediction
       predictions[[j]] <- data.frame("Prediction" = current.prediction$prediction,
                                      "Probability" = current.prediction$probability)
       
-      
-      
-      
-    }
+      } # End our loop through our trees
     
     # Convert our list of predicitons to a data.frame
     predictions <- ldply(predictions) %>%
@@ -88,27 +94,12 @@ predictRandomForest <- function(data, model){
     output$Prediction[i] <- as.character(predictions$Prediction[[1]])
     output$Freq[i] <- predictions$Freq[1]
     
-
-  }
-
-
+    
+  } # End loop through observations
   
+  
+  # Print output
   output
   
 }
-
-
-
-
-
-# Let's take a random sample row and test our function --------------------
-
-sample <- subdata[sample(nrow(iris))[1],]
-
-output <- predictRandomForest(sample, model)
-
-output
-
-
-
-
+# Finished
