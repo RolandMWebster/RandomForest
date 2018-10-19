@@ -1,2 +1,2 @@
 # RandomForest
-Building a random forest model from scratch
+Building a random forest model from scratch.
