@@ -2,12 +2,19 @@ calculateCostGINI <- function(x){
   
   kObs <- nrow(x)
   
+  # Cost before is the same for factor and numerical variables
   cost.before <- 1 - x %>% 
     group_by(Response) %>%
     summarise(gini = (n() / nrow(x))^2) %>%
     ungroup() %>%
     summarise(gini = sum(gini))
   
+  
+  # Here we get a difference, we can just wrap this in an if() statement to start (kind of ugly though):
+  
+  # NUMERICAL VARIABLE ------------------------------------------------------
+  
+  if(is.numeric(x$Predictor) == TRUE){
   cost.vector <- c(rep(0,length(unique(x$Predictor))))
   
   for(i in 1:length(unique(x$Predictor))){
@@ -16,7 +23,6 @@ calculateCostGINI <- function(x){
     x1 <- x[x$Predictor <= unique(x$Predictor)[i],]
     
     cost1 <- 1 - x1 %>% 
-      filter(Predictor <= unique(x$Predictor)[i]) %>%
       group_by(Response) %>%
       summarise(gini = (n() / nrow(x1))^2) %>%
       ungroup() %>%
@@ -45,4 +51,58 @@ calculateCostGINI <- function(x){
                        "cost.value" = min(cost.vector),
                        "cost.change" = cost.before[[1]] - min(cost.vector))
   
+  }else{
+  
+  
+  # NON-NUMERICAL VARIABLE --------------------------------------------------
+  
+    
+    # Slightly different compared to a numerical predictor
+    # We assign a list of all possible subsets (we take the floor of length of unique values / 2 so we don't repeat values)
+    partitions <- unlist(lapply(1:floor(length(x$Predictor)/2),
+                                combn,
+                                x = x$Predictor,
+                                simplify = FALSE),
+                         recursive = FALSE)
+    
+    # As with the numerical precitors, initialize a cost vecotr
+    cost.vector <- c(rep(0,length(partitions)))
+    
+    for(i in 1:length(partitions)){
+      
+      # Take x1 as x with values in our subset
+      x1 <- x[x$Predictor %in% partitions[i],]
+      
+      cost1 <- 1 - x1 %>% 
+        group_by(Response) %>%
+        summarise(gini = (n() / nrow(x1))^2) %>%
+        ungroup() %>%
+        summarise(gini = sum(gini))
+      
+      # Take x2 as x with the remaining values not in our subset
+      x2 <- x[!(x$Predictor %in% partitions[i]),]
+      
+      cost2 <- 1 - x2 %>%
+        group_by(Response) %>%
+        summarise(gini = (n() / nrow(x2))^2) %>%
+        ungroup() %>%
+        summarise(gini = sum(gini))
+      
+      
+      cost <- ((nrow(x1)/kObs) * cost1) + ((nrow(x2)/kObs) * cost2)
+      
+      cost.vector[i] <- cost[[1]]
+      
+      
+    }
+    
+    output <- data.frame("split.value" = unique(partitions)[[which.min(cost.vector)]],
+                         "cost.value" = min(cost.vector),
+                         "cost.change" = cost.before[[1]] - min(cost.vector))
+    
+  
+  }
+  
+  
 }  
+
