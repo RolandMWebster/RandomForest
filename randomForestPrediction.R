@@ -45,44 +45,65 @@ predictDecisionTree <- function(data, model){
 
 predictRandomForest <- function(data, model){
   
-  # Initialize List of Predictions ------------------------------------------
+
+  # Loop Through Each Observation to be Predicted ---------------------------
+
+  output <- data.frame("Prediction" = rep(0,nrow(data)),
+                       "Freq" = rep(0,nrow(data)))
   
-  predictions <- vector("list", length = length(model))
-  
-  # Loop through each tree in the random forest
-  for(i in 1:length(model)){
+  # Loop through the observations in our data
+  for(i in 1:nrow(data)){
     
-    # Declare the current tree
-    tree <- model[[i]]
-    
-    current.prediction <- predictDecisionTree(data,tree)
-    
-    # Update the current prediction using the predictDecisionTree() function
-    predictions[[i]] <- data.frame("Prediction" = current.prediction$prediction,
-                                   "Probability" = current.prediction$probability)
+    observation <- data[i,]
     
     
+    # Initialize List of Predictions ------------------------------------------
     
+    predictions <- vector("list", length = length(model))
     
+    # Loop through each tree in the random forest
+    for(j in 1:length(model)){
+      
+      # Declare the current tree
+      tree <- model[[j]]
+      
+      current.prediction <- predictDecisionTree(observation,tree)
+      
+      # Update the current prediction using the predictDecisionTree() function
+      predictions[[j]] <- data.frame("Prediction" = current.prediction$prediction,
+                                     "Probability" = current.prediction$probability)
+      
+      
+      
+      
+    }
+    
+    # Convert our list of predicitons to a data.frame
+    predictions <- ldply(predictions) %>%
+      group_by(Prediction) %>%
+      summarise(Freq = n() ) %>%
+      ungroup() %>%
+      arrange(desc(Freq))
+    
+    output$Prediction[i] <- as.character(predictions$Prediction[[1]])
+    output$Freq[i] <- predictions$Freq[1]
+    
+
   }
+
+
   
-  # Convert our list of predicitons to a data.frame
-  predictions <- ldply(predictions) %>%
-    group_by(Prediction) %>%
-    summarise(Freq = n()) %>%
-    ungroup() %>%
-    arrange(desc(Freq))
+  output
   
-  # Tabulate to get a frequency count
-  # result <- as.data.frame(table(predictions$Prediction)) %>%
-  #   arrange(desc(Freq))
 }
+
+
 
 
 
 # Let's take a random sample row and test our function --------------------
 
-sample <- subdata[sample(nrow(subdata))[1],]
+sample <- subdata[sample(nrow(iris))[1],]
 
 output <- predictRandomForest(sample, model)
 

@@ -14,11 +14,10 @@
 # Build splitting logic - DONE
 # Recursively Call Splitting Process - DONE
 # Add sampling of predictors - DONE
-
 # Determine outputs for split / no split result - DONE
+# TRANSFORM INTO RANDOM FOREST BY CREATING N NUMBER OF DECISION TREES - DONE
 
-# TRANSFORM INTO RANDOM FOREST BY CREAATING N NUMBER OF DECISION TREES
-# ALLOW FOR RESPONSE VARIABLES WITH N > 2 LEVELS
+# ALLOW FOR RESPONSE VARIABLES WITH N > 2 LEVELS (I THINK THIS ALREADY WORKS!!!)
 # ALLOW FOR CHARACTER PREDICTORS
 # ADD PARAMETER FOR MULTIPLE DIFFERENT COST FUNCTIONS
 
@@ -38,7 +37,7 @@ library(ggplot2)
 # We load the iris data to train our model on
 # We filter for only 2 response factors (we'll work on r > 2 solutions later)
 subdata <- iris %>% 
-  filter(Species %in% c("versicolor", "virginica")) %>%
+  # filter(Species %in% c("versicolor", "virginica")) %>%
   mutate(Species = as.character(Species)) %>%
   droplevels()
 
@@ -211,11 +210,8 @@ trainRandomForest <- function(data,
 
 
 
-
-
-
 # TEST ======================================================================
-model <- trainRandomForest(data = subdata,
+model <- trainRandomForest(data = iris,
                            response = "Species",
                            predictors = c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"),
                            requiredCostReduction = 0.01,
