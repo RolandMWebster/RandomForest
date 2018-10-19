@@ -17,7 +17,7 @@ library(dplyr)
 trainDecisionTree <- function(data,
                               response,
                               predictors = names(data)[names(data) != response],   # Default to all variables except the response variable
-                              requiredCostReduction = 0.2)                         # Defualt to 0.2
+                              requiredCostReduction = 0.2                          # Defualt to 0.2
 ){
 
   
