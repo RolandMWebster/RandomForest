@@ -21,7 +21,7 @@ predictObservation <- function(observation,    # Our function takes the observat
   if(is.null(model$split.predictor)){
     
     # If it doesn't, assign the prediction output (and we're done)
-    prediction <- model
+    prediction <- model$prediction
     
   }else{
     
@@ -42,7 +42,6 @@ predictObservation <- function(observation,    # Our function takes the observat
     predictDecisionTree(observation, model)
     
   } # End our ifelse call
-  
   
 }
 
@@ -67,8 +66,10 @@ predictDecisionTree <- function(data,             # Our function takes the full 
     # Declare our current observation
     observation <- data[i,]
     
-    # Determine the prediction for tree j by calling our predictDecisionTree() function
-    output$Prediction[i] <- predictObservation(observation,model)
+    # Determine the prediction for the current observation by calling our predictObservation() function
+    observationPrediction <- predictObservation(observation,model)
+    
+    output$Prediction[i] <- observationPrediction[[1]]
     
     
   } # End loop through observations

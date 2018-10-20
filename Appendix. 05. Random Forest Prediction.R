@@ -79,11 +79,8 @@ predictRandomForest <- function(data,             # Our function takes the full 
       tree <- model[[j]]
       
       # Determine the prediction for tree j by calling our predictDecisionTree() function
-      current.prediction <- predictObservation(observation,tree)
+      predictions[[j]] <- predictObservation(observation,tree)
       
-      # Update our prediction list with the current prediction
-      predictions[[j]] <- data.frame("Prediction" = current.prediction$prediction,
-                                     "Probability" = current.prediction$probability)
       
       } # End our loop through our trees
     

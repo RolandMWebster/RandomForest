@@ -58,7 +58,10 @@ rfFitEnd <- Sys.time()
 
 # Predict Response Variable on Test Data ----------------------------------
 
+# Decision Tree
 dtOutput <- predictDecisionTree(test.data, dtModel)
+
+# Random Forest
 rfOutput <- predictRandomForest(test.data, rfModel)
 
 
@@ -67,10 +70,13 @@ rfOutput <- predictRandomForest(test.data, rfModel)
 
 # Create Results ----------------------------------------------------------
 
-rfResults <- cbind(rfOutput, "Observed" = test.data$Species) %>%
-  mutate(result = 1)
-rfResults$result[rfResults$Prediction != rfResults$Observed] <- 0
+# Decision Tree
+dtResults <- cbind(dtOutput, "Observed" = test.data$Species) %>%
+  mutate(result = (Prediction == Observed)) %>%
+  summarise(Result = sum(result) / n())
 
-rfResults <- rfResults %>%
+# Random Forest
+rfResults <- cbind(rfOutput, "Observed" = test.data$Species) %>%
+  mutate(result = (Prediction == Observed)) %>%
   summarise(Result = sum(result) / n())
 
