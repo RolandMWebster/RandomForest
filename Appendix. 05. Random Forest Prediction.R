@@ -8,8 +8,8 @@
 
 # Prediction Function -----------------------------------------------------
 
-predictDecisionTree <- function(data,           # Our function takes the data to predict as a parameter
-                                model){         # ... and the model used to make the predictions
+predictObservation <- function(observation,    # Our function takes the observation to predict
+                               model){         # ... and the model used to make the prediction
 
   # Our model is in a nested list structure.
   # We can loop through the model and strip away layers of the model at each step until we reach a prediciton.
@@ -31,7 +31,7 @@ predictDecisionTree <- function(data,           # Our function takes the data to
     split.value <- model$split.value
     
     # We use this information to determine which branch to go down:
-    if(data[,split.predictor][[1]] <= split.value){
+    if(observation[,split.predictor][[1]] <= split.value){
       model <- model$data.1 
     }else{
       model <- model$data.2
@@ -39,9 +39,9 @@ predictDecisionTree <- function(data,           # Our function takes the data to
     # Our model has now been stripped down to the relevant branch
     
     # Once we've reassigned y to be our chosen subdata set, we can recursively call our function:
-    predictDecisionTree(data, model)
+    predictDecisionTree(observation, model)
     
-  }
+  } # End our ifelse call
   
   
 }
@@ -52,8 +52,8 @@ predictDecisionTree <- function(data,           # Our function takes the data to
 # Now To Predict Random Forest --------------------------------------------
 
 
-predictRandomForest <- function(data,             # Our function takes the same parameters as predictDecisionTree()
-                                model){
+predictRandomForest <- function(data,             # Our function takes the full data set to predict
+                                model){           # and similarly to the predictionObservation function, we provide the model as a parameter
 
   # Initilialize an output data.frame
   
@@ -79,7 +79,7 @@ predictRandomForest <- function(data,             # Our function takes the same 
       tree <- model[[j]]
       
       # Determine the prediction for tree j by calling our predictDecisionTree() function
-      current.prediction <- predictDecisionTree(observation,tree)
+      current.prediction <- predictObservation(observation,tree)
       
       # Update our prediction list with the current prediction
       predictions[[j]] <- data.frame("Prediction" = current.prediction$prediction,
