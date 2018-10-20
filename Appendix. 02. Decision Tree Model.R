@@ -68,8 +68,8 @@ trainDecisionTree <- function(data,
     # We will split our data into a list of two data.frames, this will allow us to use lapply
     data.1 <- data %>% filter_at(vars(split.predictor), any_vars(. <= split.value)) 
     data.2 <- data %>% filter_at(vars(split.predictor), any_vars(. > split.value))
-    output <- list("data.1" = data.1,
-                   "data.2" = data.2)
+    output <- list("branch.1" = data.1,
+                   "branch.2" = data.2)
     
     # Recursively call our trainDecisionTree() function
     output <- lapply(output,

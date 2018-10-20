@@ -1,8 +1,8 @@
 # Outline -----------------------------------------------------------------
 
 # Here we build a function used to predict response variables using our trained random forest model.
-# We utilize the predictDecisionTree() function that we built for predicting response variables from our decision tree model.
-# No changes are made to the predictDecisionTree() function.
+# We utilize the predictObservation() function that we built.
+# We modify the predictDecisionTree() function that we wrote to loop through each tree in our forest.
 
 
 
@@ -32,9 +32,9 @@ predictObservation <- function(observation,    # Our function takes the observat
     
     # We use this information to determine which branch to go down:
     if(observation[,split.predictor][[1]] <= split.value){
-      model <- model$data.1 
+      model <- model$branch.1 
     }else{
-      model <- model$data.2
+      model <- model$branch.2
     }
     # Our model has now been stripped down to the relevant branch
     
