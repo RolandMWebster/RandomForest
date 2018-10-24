@@ -4,12 +4,6 @@
 # We start by utilizing the code from the trainDecisionTree() function.
 # We make an edit to the tranDecisionTree() function so that it samples m predictors from p before each split.
 
-############################# TO-DO ##################################
-
-# Update "probability" output to give meaningful output
-
-######################################################################
-
 ########################### LIMITATIONS ##############################
 
 # Model does not currently accept non-numerical predictors
@@ -30,13 +24,13 @@ library(dplyr)
 
 # Start Function ----------------------------------------------------------
 
-# As mentioned, start by creating a modified version of the trainDecisionTree() function.
-# We add the samplePredictorCount parameter (this can be set to length(predictors) for a decision tree)
-trainDecisionTree <- function(data,
-                              response,
-                              predictors = names(data)[names(data) != response],   # Default to all variables except the response variable
-                              requiredCostReduction = 0.2,                         # Defualt to 0.2
-                              samplePredictorCount = floor(length(predictors)^0.5) # Defualt to m = sqrt(p)
+# As mentioned, start by creating a modified version of the trainDecisionTree() function; we'll call it trainDecsisionTreeRF()
+# We add the samplePredictorCount parameter (this can be set to length(predictors) to create a decision tree)
+trainDecsisionTreeRF <- function(data,
+                                 response,
+                                 predictors = names(data)[names(data) != response],   # Default to all variables except the response variable
+                                 requiredCostReduction = 0.2,                         # Defualt to 0.2
+                                 samplePredictorCount = floor(length(predictors)^0.5) # Defualt to m = sqrt(p)
 ){
   
   # Sampling Predictors -----------------------------------------------------
@@ -55,7 +49,7 @@ trainDecisionTree <- function(data,
   
   
   
-  # Begin Loop Through Predictors -------------------------------------------
+  # Begin Looping Through Predictors ----------------------------------------
   
   for(i in split.table$name){
     
@@ -73,19 +67,19 @@ trainDecisionTree <- function(data,
     split.table$cost.change[split.table$name == i] <- results$cost.change  
     
   }
-  # split.table now has all the information we need to determine what to do next
+  # split.table now has all the information we need to determine what to do next.
   
   
   # Determine Split ---------------------------------------------------------
   
   # We determine which variable we will split on IF a split should occur (this is the variable that gives us the largest reduction in cost)
-  # We store this information:
+  # We store this information
   split.predictor <- as.character(split.table$name[which.max(split.table$cost.change)])
   split.value <- split.table$split.value[which.max(split.table$cost.change)]
   cost.value <- split.table$cost.value[which.max(split.table$cost.change)] # <- currently not used but might be useful
   cost.change <- split.table$cost.change[which.max(split.table$cost.change)]
   
-  # We require the cost reduction to be greater than or equal to our requiredCostReduction parameter, we split only if this is the case:
+  # We require the cost reduction to be greater than or equal to our requiredCostReduction parameter, we split only if this is the case.
   # Split Data if the cost change is great enough
   if(cost.change >= requiredCostReduction){
     
@@ -111,8 +105,7 @@ trainDecisionTree <- function(data,
     
     
   }else{
-    # If the maximum cost reduction is below our chosen threshold, we do not split.
-    # We need to determine our predicted response value:
+    # If the maximum cost reduction is below our chosen threshold then we do not split, instead we determine our predicted response value:
     
     # Tabulate frequency of response variables (the maximum freq will be our prediction)
     result.table <- as.data.frame(table(data[,response]))
@@ -162,12 +155,12 @@ trainRandomForest <- function(data,
     # Perform our bootstrap selection of observations
     sample.data <- data[sample(nrow(data),floor(nrow(data)*bootstrapRatio), replace = TRUE),]
     
-    # Train n decision trees on our bootstrapped data
-    output[[i]] <- trainDecisionTree(data = sample.data,
-                                     response = response,
-                                     predictors = predictors,
-                                     requiredCostReduction = requiredCostReduction,
-                                     samplePredictorCount = samplePredictorCount)
+    # Train decision tree i on our bootstrapped data
+    output[[i]] <- trainDecisionTreeRF(data = sample.data,
+                                       response = response,
+                                       predictors = predictors,
+                                       requiredCostReduction = requiredCostReduction,
+                                       samplePredictorCount = samplePredictorCount)
   }
   
   # Close progress bar
