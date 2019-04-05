@@ -2,7 +2,7 @@
 
 ### Overview
 
-Building a random forest model from scratch.
+Building a random forest algorithm from scratch.
 
 We build a fitDecisionTree() function that uses a top-down, greedy approach to fit a decision tree and uses the Gini Index to split nodes (and determine tree length). We then adapt this code to create a fitRandomForest() function. We add bootstrapping of n observations limit a selection of m predictors from p total predictors at each split. We use a loop to fit multiple decision trees to create our random forest model.
 
